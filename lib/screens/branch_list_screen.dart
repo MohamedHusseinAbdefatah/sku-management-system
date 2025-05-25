@@ -4,86 +4,6 @@ import 'package:flutter_application_31/models/brach_model.dart';
 import 'package:flutter_application_31/screens/branch_screen.dart';
 import 'package:flutter_application_31/providers/branch_provider.dart';
 import 'package:flutter_application_31/screens/branch_editing_scree.dart';
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'package:flutter_application_31/models/brach_model.dart';
-// import 'package:flutter_application_31/screens/branch_screen.dart';
-// import 'package:flutter_application_31/providers/branch_provider.dart';
-// import 'package:flutter_application_31/screens/branch_editing_scree.dart';
-// // lib/screens/branch_list_screen.dart
-
-// class BranchListScreen extends StatelessWidget {
-//   const BranchListScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final provider = Provider.of<BranchProvider>(context);
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Branches'),
-//         actions: [
-//           IconButton(
-//             icon: const Icon(Icons.add),
-//             onPressed: () => Navigator.push(
-//               context,
-//               MaterialPageRoute(
-//                 builder: (context) => const BranchSetupScreen(),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//       body: RefreshIndicator(
-//         onRefresh: () => provider.loadBranches(),
-//         child: ListView.separated(
-//           padding: const EdgeInsets.all(16),
-//           itemCount: provider.branches.length,
-//           separatorBuilder: (_, __) => const SizedBox(height: 12),
-//           itemBuilder: (context, index) {
-//             final branch = provider.branches[index];
-//             return Card(
-//               elevation: 2,
-//               child: ListTile(
-//                 leading: const Icon(Icons.store, color: Colors.blue),
-//                 title: Text(
-//                   branch.name,
-//                   style: const TextStyle(fontWeight: FontWeight.w500),
-//                 ),
-//                 subtitle: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(branch.location),
-//                     const SizedBox(height: 4),
-//                     Text(
-//                       branch.contact,
-//                       style: TextStyle(color: Colors.grey[600]),
-//                     ),
-//                   ],
-//                 ),
-//                 trailing: IconButton(
-//                   icon: const Icon(Icons.edit, color: Colors.blue),
-//                   onPressed: () => Navigator.push(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (c) => BranchEditScreen(branch: branch),
-//                     ),
-//                   ),
-//                 ),
-//                 onTap: () => Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (c) => BranchEditScreen(branch: branch),
-//                   ),
-//                 ),
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class BranchListScreen extends StatelessWidget {
   const BranchListScreen({super.key});
@@ -151,14 +71,29 @@ class BranchListScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                trailing: IconButton(
-                  icon: Icon(Icons.edit_outlined, color: colorScheme.primary),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (c) => BranchEditScreen(branch: branch),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit_outlined,
+                        color: colorScheme.primary,
+                      ),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (c) => BranchEditScreen(branch: branch),
+                        ),
+                      ),
                     ),
-                  ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: colorScheme.error,
+                      ),
+                      onPressed: () => _deleteBranch(context, branch),
+                    ),
+                  ],
                 ),
                 onTap: () => Navigator.push(
                   context,
@@ -172,5 +107,29 @@ class BranchListScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _deleteBranch(BuildContext context, InventoryBranch branch) {
+    final provider = Provider.of<BranchProvider>(context, listen: false);
+    final deletedBranch = provider.getBranchById(branch.id);
+
+    provider.deleteBranch(branch.id).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Deleted ${branch.name}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'Undo',
+            textColor: Colors.white,
+            onPressed: () {
+              if (deletedBranch != null) {
+                provider.addBranch(deletedBranch);
+              }
+            },
+          ),
+        ),
+      );
+    });
   }
 }

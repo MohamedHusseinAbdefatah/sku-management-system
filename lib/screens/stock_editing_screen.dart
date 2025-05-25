@@ -50,24 +50,42 @@ class _StockEditScreenState extends State<StockEditScreen> {
                 decoration: const InputDecoration(labelText: 'Total Quantity'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || int.tryParse(value) == null) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a value';
+                  }
+                  final parsed = int.tryParse(value);
+                  if (parsed == null || parsed < 0) {
                     return 'Invalid number';
                   }
                   return null;
                 },
-                onChanged: (value) => _quantity = int.parse(value),
+                onChanged: (value) {
+                  final parsed = int.tryParse(value);
+                  if (parsed != null && parsed >= 0) {
+                    setState(() => _quantity = parsed);
+                  }
+                },
               ),
               TextFormField(
                 initialValue: _reservedStock.toString(),
                 decoration: const InputDecoration(labelText: 'Reserved Stock'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || int.tryParse(value) == null) {
-                    return 'Invalid number';
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a value';
+                  }
+                  final parsed = int.tryParse(value);
+                  if (parsed == null || parsed < 0 || parsed > _quantity) {
+                    return 'Must be between 0 and $_quantity';
                   }
                   return null;
                 },
-                onChanged: (value) => _reservedStock = int.parse(value),
+                onChanged: (value) {
+                  final parsed = int.tryParse(value);
+                  if (parsed != null && parsed >= 0 && parsed <= _quantity) {
+                    setState(() => _reservedStock = parsed);
+                  }
+                },
               ),
               TextFormField(
                 initialValue: _reorderThreshold.toString(),
@@ -76,12 +94,21 @@ class _StockEditScreenState extends State<StockEditScreen> {
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || int.tryParse(value) == null) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a value';
+                  }
+                  final parsed = int.tryParse(value);
+                  if (parsed == null || parsed < 0) {
                     return 'Invalid number';
                   }
                   return null;
                 },
-                onChanged: (value) => _reorderThreshold = int.parse(value),
+                onChanged: (value) {
+                  final parsed = int.tryParse(value);
+                  if (parsed != null && parsed >= 0) {
+                    setState(() => _reorderThreshold = parsed);
+                  }
+                },
               ),
               const SizedBox(height: 20),
               ElevatedButton(

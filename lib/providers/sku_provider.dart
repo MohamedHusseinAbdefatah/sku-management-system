@@ -133,6 +133,19 @@ class SKUProvider with ChangeNotifier {
     await loadSKUs();
   }
 
+  Future<void> deleteSKU(String skuCode) async {
+    await _dbHelper.deleteSKU(skuCode);
+    await loadSKUs();
+  }
+
+  SKU? getSKUByCode(String code) {
+    try {
+      return _skus.firstWhere((sku) => sku.code == code);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> setReorderThreshold(String skuCode, int threshold) async {
     final sku = _skus.firstWhere((s) => s.code == skuCode);
     sku.reorderThreshold = threshold;

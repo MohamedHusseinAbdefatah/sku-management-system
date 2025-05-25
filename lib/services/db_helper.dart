@@ -62,6 +62,26 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) => SKU.fromMap(maps[i]));
   }
 
+  Future<int> deleteSKU(String code) async {
+    final db = await database;
+
+    return await db.delete('skus', where: 'code = ?', whereArgs: [code]);
+  }
+
+  Future<SKU?> getSKUByCode(String code) async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'skus',
+      where: 'code = ?',
+      whereArgs: [code],
+    );
+    if (maps.isNotEmpty) {
+      return SKU.fromMap(maps.first);
+    }
+    return null;
+  }
+
   Future<int> updateSKU(SKU sku) async {
     final db = await database;
     return db.update(
